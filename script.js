@@ -25,6 +25,8 @@ function csvToArray(str, delimiter = ",") {
     return arr;
 }
 var country = Array();
+var geoData = Array();
+var OverView = {};
 var mainData;
 fetch('Data/full_grouped.csv').then(respons => respons.text())
     .then(data => {
@@ -39,13 +41,83 @@ fetch('Data/full_grouped.csv').then(respons => respons.text())
             }
             country.push(mainData[i]["Country/Region"])
         }
+
+        OverView = overViewData(mainData);
+        console.log("OverView");
+        console.log(OverView);
+        geoData.push(['Country', 'Active Case On Average']);
+        function FindataFromGeo() {
+            for (const key in OverView) {
+                geoData.push([key, (OverView[key].activte_case / mainData.length)]);
+            }
+        }
+        FindataFromGeo();
+        console.log(geoData);
+
         console.log(mainData[0]["Country/Region"]);
         setCountry(country);
-        updateChart("Afghanistan");
+        updateChart("India");
+        document.querySelector("#country_name").innerHTML = "India";
+
+
+        google.charts.load('current', {
+            'packages': ['geochart'],
+        });
+
+        google.charts.setOnLoadCallback(drawRegionsMap);
+
+        function drawRegionsMap() {
+            var data = google.visualization.arrayToDataTable(geoData);
+
+            var options = {
+                tooltip: { trigger: 'selection' },
+                colorAxis: { colors: ["#10af0d", "#fff", "#fff", "#950101"] },
+            };
+
+            var chart = new google.visualization.GeoChart(document.getElementById('geo-chart'));
+            chart.draw(data, options);
+            google.visualization.events.addListener(chart, 'select', myalret);
+
+            async function myalret(e) {
+                console.log(e);
+                var selection = chart.getSelection();
+                console.log(selection);
+                // console.log(selection[0]);
+                // console.log(selection[0].row);
+                // console.log(data[selection[0].row]);
+                if (selection[0].row != null) {
+                    console.log(geoData[selection[0].row]);
+                    console.log(geoData[selection[0].row][0]);
+                    updateChart(geoData[selection[0].row][0]);
+                    setTimeout(() => {
+                        let count = 0;
+                        let tm = undefined;
+                        while (true) {
+                            tm = document.querySelector(".google-visualization-tooltip");
+                            if (tm != undefined || count == 500) {
+                                break;
+                            }
+                            count++;
+                        }
+                        tm = tm.children;
+                        console.log(tm);
+                        console.log(tm[1].children[0].innerHTML);
+                        document.querySelector("#country_name").innerHTML = tm[1].children[0].innerHTML;
+                    },
+                        1000);
+
+                }
+
+                // chart.setSelection("")
+            }
+
+
+        }
 
         document.querySelectorAll("#countryList li").forEach(li => {
             li.onclick = function () {
                 console.log(this.dataset.name);
+                document.querySelector("#country_name").innerHTML = this.dataset.name;
                 updateChart(this.dataset.name);
                 if (document.querySelector(".active") != null) {
                     document.querySelector(".active").classList.remove("active");
@@ -53,7 +125,7 @@ fetch('Data/full_grouped.csv').then(respons => respons.text())
                 this.classList.add("active");
 
                 document.querySelectorAll("#countryList li").forEach(li => {
-                    li.style.display = "block";
+                    li.style.display = "list-item";
                 })
                 document.querySelector("#find_country").value = "";
             }
@@ -126,67 +198,29 @@ function extrextData(conName) {
 function updateChart(conName) {
 
     let obj = extrextData(conName);
-    document.querySelector(".chart-div").innerHTML = "";
+    document.querySelector(".chart-div").innerHTML = `
+        <div class="chart-container" id="activate-case"></div>
+        <div class="chart-container" id="confiremed-case"></div>
+        <div class="chart-container" id="new-case"></div>
+        <div class="chart-container" id="new-death"></div>
+        <div class="chart-container" id="new-recover"></div>
+    `;
     document.querySelector("#max_case").innerHTML = obj.max_case;
     document.querySelector("#max_case_date").innerHTML = obj.max_case_date;
-    document.querySelector("#country_name").innerHTML = conName;
     document.querySelector("#avg_case").innerHTML = parseInt(obj.total / obj.date.length);
     // console.log(document.querySelector("#country_name"));
 
-    var options = {
+    window.Apex = {
         chart: {
-            height: 350,
-            type: "line",
+            width: 400,
+            height: 150,
+            type: "bar",
         },
         dataLabels: {
-            enabled: false,
-            hover: {
-                enabled: true
-            }
-        },
-        // colors: ["#0f0f0f", "#ff0000", "orange", "#ff0000", "#0000ff"],
-        series: [
-            {
-                name: "Confirmed Case",
-                data: obj.confirm
-            },
-            {
-                name: "Actvate case",
-                data: obj.actvate_case
-            },
-            {
-                name: "New case",
-                data: obj.new_case
-            },
-            {
-                name: "New Death",
-                data: obj.new_death
-            },
-            {
-                name: "New Recovre",
-                data: obj.new_recover
-            }
-        ],
-        stroke: {
-            width: [2, 2, 2, 2, 2]
-        },
-        theme: {
-            mode: 'light',
-            palette: 'palette8',
-            monochrome: {
-                enabled: false,
-                color: '#255aee',
-                shadeTo: 'light',
-                shadeIntensity: 0.65
-            },
-        },
-        plotOptions: {
-            // bar: {
-            //     columnWidth: "20%"
-            // }
+            enabled: false
         },
         xaxis: {
-            // type: "datetime",
+            type: "datetime",
             labels: {
                 datetimeFormatter: {
                     year: 'yyyy',
@@ -196,46 +230,153 @@ function updateChart(conName) {
                 }
             },
             categories: obj.date,
-            hideOverlappingLabels: true,
-            // min: new Date(2021),
-            // max: new Date(2021, 7, 25)
-        },
-        yaxis: [
-            // {
-            //     axisTicks: {
-            //         show: true
-            //     },
-            //     axisBorder: {
-            //         show: true,
-            //         color: "#FF1654"
-            //     },
-            //     labels: {
-            //         style: {
-            //             colors: "#FF1654"
-            //         }
-            //     },
-            //     title: {
-            //         text: "Series A",
-            //         style: {
-            //             color: "#FF1654"
-            //         }
-            //     }
-            // },
-        ],
-        tooltip: {
-            shared: false,
-            intersect: true,
-            x: {
-                show: true
-            }
         },
         legend: {
             horizontalAlign: "center",
+        },
+        tooltip: {
+            enabled: true,
+            intersect: false,
+            inverseOrder: false,
+            custom: undefined,
+            fillSeriesColor: true,
+            theme: false,
+            style: {
+                fontSize: '12px',
+                fontFamily: undefined
+            },
+            onDatasetHover: {
+                highlightDataSeries: true,
+            },
+            marker: {
+                show: true,
+            },
+            items: {
+                display: "flex",
+            },
+            fixed: {
+                enabled: true,
+                position: 'topright',
+                offsetX: 0,
+                offsetY: 0,
+            },
+        }
+
+    }
+
+    // createChart("Confirmed Case", obj.confirm, obj.date, document.querySelector("#confiremed-case"));
+    // createChart("Actvate case", obj.actvate_case, obj.date, document.querySelector("#activate-case"));
+
+    createChart("New case", obj.new_case, obj.date, document.querySelector("#new-case"));
+    createChart("New Recoverd", obj.new_recover, obj.date, document.querySelector("#new-recover"));
+    createChart("New Death", obj.new_death, obj.date, document.querySelector("#new-death"));
+
+    // createChart("New Recovre", obj.new_recover, obj.date, document.querySelector("#new-recover"));
+
+    // var options = {
+    //     chart: {
+    //         height: 350,
+    //         type: "bar",
+    //     },
+    //     // colors: ["#0f0f0f", "#ff0000", "orange", "#ff0000", "#0000ff"],
+    //     series: [
+    //         {
+    //             name: "Confirmed Case",
+    //             data: obj.confirm
+    //         },
+    //         {
+    //             name: "Actvate case",
+    //             data: obj.actvate_case
+    //         },
+    //         {
+    //             name: "New case",
+    //             data: obj.new_case
+    //         },
+    //         {
+    //             name: "New Death",
+    //             data: obj.new_death
+    //         },
+    //         {
+    //             name: "New Recovre",
+    //             data: obj.new_recover
+    //         }
+    //     ],
+    //     stroke: {
+    //         width: [2, 2, 2, 2, 2]
+    //     },
+    //     theme: {
+    //         mode: 'light',
+    //         palette: 'palette8',
+    //         monochrome: {
+    //             enabled: false,
+    //             color: '#255aee',
+    //             shadeTo: 'light',
+    //             shadeIntensity: 0.65
+    //         },
+    //     },
+    //     xaxis: {
+    //         type: "datetime",
+    //         labels: {
+    //             datetimeFormatter: {
+    //                 year: 'yyyy',
+    //                 month: 'MMM \'yy',
+    //                 day: 'dd MMM',
+    //                 hour: 'HH:mm'
+    //             }
+    //         },
+    //         categories: obj.date,
+    //     },
+    //     legend: {
+    //         horizontalAlign: "center",
+    //     }
+    // };
+
+    // var chart = new ApexCharts(document.querySelector(".chart-div"), options);
+    // chart.render();
+
+
+}
+
+function createChart(lable, ydata, xdata, elment) {
+    var options = {
+        chart: {
+            id: 'line-1',
+            group: 'social',
+            type: 'line',
+        },
+        // colors: ["#0f0f0f", "#ff0000", "orange", "#ff0000", "#0000ff"],
+        series: [
+            {
+                name: lable,
+                data: ydata
+            },
+        ],
+        stroke: {
+            width: 1
+        },
+        yaxis: {
+            labels: {
+                minWidth: 40
+            }
+        },
+        title: {
+            text: lable,
+            align: 'left',
+            margin: 10,
+            offsetX: 0,
+            offsetY: 0,
+            floating: false,
+            style: {
+                fontSize: '14px',
+                fontWeight: 'bold',
+                fontFamily: undefined,
+                color: '#263238'
+            },
         }
     };
 
-    var chart = new ApexCharts(document.querySelector(".chart-div"), options);
-
+    console.log(elment);
+    var chart = new ApexCharts(elment, options);
     chart.render();
 
 }
@@ -243,14 +384,15 @@ function updateChart(conName) {
 
 document.querySelector("#find_country").addEventListener("keyup", function () {
 
-    let val = this.value;
+    let val = this.value.toLowerCase();
     console.log(val);
     if (val != "") {
 
         document.querySelectorAll("#countryList li").forEach(li => {
-            let temp = li.innerHTML;
+            let temp = li.innerHTML.toLowerCase();
+            // console.log(temp);
             if (temp.indexOf(val) > -1) {
-                li.style.display = "block";
+                li.style.display = "list-item;";
             }
             else {
                 li.style.display = "none";
@@ -259,8 +401,32 @@ document.querySelector("#find_country").addEventListener("keyup", function () {
     }
     else {
         document.querySelectorAll("#countryList li").forEach(li => {
-            li.style.display = "block";
+            li.style.display = "list-item";
         })
     }
 
 })
+
+function overViewData(mainData) {
+    let OverView = {};
+
+    for (i = 0; i < mainData.length; i++) {
+        if (OverView[mainData[i]["Country/Region"]] == undefined) {
+            OverView[mainData[i]["Country/Region"]] = {
+                "activte_case": 0,
+                "confirmed_case": 0,
+                "death_case": 0,
+                "recovered": 0,
+            };
+            console.log(OverView[mainData[i]["Country/Region"]]);
+        }
+        else {
+            OverView[mainData[i]["Country/Region"]].confirmed_case = parseInt(OverView[mainData[i]["Country/Region"]].confirmed_case) + parseInt(mainData[i]["Confirmed"]);
+            OverView[mainData[i]["Country/Region"]].activte_case = parseInt(OverView[mainData[i]["Country/Region"]].activte_case) + parseInt(mainData[i]["Active"]);
+            OverView[mainData[i]["Country/Region"]].death_case = parseInt(OverView[mainData[i]["Country/Region"]].death_case) + parseInt(mainData[i]["Deaths"]);
+            OverView[mainData[i]["Country/Region"]].recovered = parseInt(OverView[mainData[i]["Country/Region"]].recovered) + parseInt(mainData[i]["Recovered"]);
+
+        }
+    }
+    return OverView;
+}

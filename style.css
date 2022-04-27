@@ -7,17 +7,25 @@
 :root {
     --orange: #f07d51;
     --text-while: #fff;
+    /* --backgound: #2C272E; */
+    /* --box-color: #FFAB4C; */
 }
 
+
 body {
+    height: 100vh;
+    overflow: hidden;
     display: flex;
     flex-direction: row;
+    background: var(--backgound);
 }
 
 nav {
+    /* display: none; */
     display: inline-block;
     color: var(--text-while);
     width: 300px;
+    /* width: 10px; */
     height: 100vh;
     padding: 30px 30px 10px;
     border: 1px solid black;
@@ -26,12 +34,16 @@ nav {
     overflow-x: hidden;
 }
 
+:-webkit-scrollbar {
+    width: 20px;
+}
+
 .nav-heading {
     font-weight: 900;
     font-size: 1.5em;
     text-align: center;
     padding: 15px;
-    margin: 20px 0 30px;
+    margin: 0px 0 30px;
     border-bottom: 2px solid var(--text-while);
 }
 
@@ -66,7 +78,7 @@ nav {
 
 main {
     display: inline-block;
-    width: calc(100% - 300px);
+    /* width: calc(100% - 300px); */
     height: 100vh;
 }
 
@@ -74,6 +86,7 @@ main {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    justify-content: space-between;
 }
 
 .main_section section {
@@ -82,14 +95,14 @@ main {
 }
 
 .main-chart {
-    width: 70%;
+    width: 60%;
     padding: 20px 30px;
 }
 
 .main-h1-heading {
     font-size: 3em;
     border-bottom: 1px solid #000;
-    margin-bottom: 50px;
+    margin-bottom: 20px;
 }
 
 .main-heading {
@@ -101,32 +114,56 @@ main {
 
 .chart-div {
     /* border: 1px solid #000; */
-    height: 400px;
-    margin: 50px auto;
+    /* height: 400px; */
+    /* overflow: hidden; */
+    margin: 0px auto;
+    text-align: center;
+}
+
+.chart-div .chart-container {
+    width: 100%;
+    display: inline-block;
 }
 
 .side-bar {
-    width: 30%;
+    width: 450px;
+    margin-right: 30px;
     padding: 10px 20px;
 }
 
+.info-card-container {
+    margin-top: 50px;
+    display: flex;
+    justify-content: space-between;
+}
+
 .info-card {
-    padding: 10px 20px;
+    display: inline-block;
+    /* width: 280px; */
+    padding: 10px;
+    margin: 0 10px;
     border-radius: 5px;
     border: 1px solid black;
-    height: 25vh;
-    margin: 5vh 0;
+    margin-bottom: 100px;
+    vertical-align: top;
+    background-color: var(--box-color);
 }
 
 .info-card h3 {
     border-bottom: 1px solid #000;
-    padding: 5px 20px;
+    padding: 5px;
 }
 
 .info-card div {
-    font-size: 30px;
-    height: 100px;
+    font-size: 20px;
+    height: 30px;
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+#geo-chart {
+    width: 80%;
+    height: 400px;
+    margin: 0 auto;
 }

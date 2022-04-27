@@ -22,37 +22,46 @@
         <section class="main_section">
             <section class="main-chart">
                 <h1 class="main-h1-heading">Covid - 19 Case study </h1>
-                <h1 class="main-heading">Conuntry Name : <span id="country_name"></span></h1>
-                <div class="chart-div">
+
+                <div id="geo-chart"></div>
+                <div class="info-card-container">
+                    <div class="info-card">
+                        <h3>Max Case Registered</h3>
+                        <div id="max_case">
+                            2500
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <h3>Max Case Registration Date</h3>
+                        <div id="max_case_date">
+                            12-03-2022
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <h3>Average Cases</h3>
+                        <div id="avg_case">
+                            12-03-2022
+                        </div>
+                    </div>
                 </div>
+
             </section>
             <section class="side-bar">
-                <div class="info-card">
-                    <!-- asdf -->
-                    <h3>Max Case Registered</h3>
-                    <div id="max_case">
-                        2500
-                    </div>
-                </div>
-                <div class="info-card">
-                    <!-- asdf -->
-                    <h3>Max Case Registeretion Date</h3>
-                    <div id="max_case_date">
-                        12-03-2022
-                    </div>
-                </div>
-                <div class="info-card">
-                    <!-- asdf -->
-                    <h3>Average Cases</h3>
-                    <div id="avg_case">
-                        12-03-2022
-                    </div>
+                <h1 class="main-heading">Country Name : <span id="country_name"></span></h1>
+                <div class="chart-div">
+                    <div class="chart-container" id="activate-case"></div>
+                    <div class="chart-container" id="confiremed-case"></div>
+                    <div class="chart-container" id="new-case"></div>
+                    <div class="chart-container" id="new-recover"></div>
+                    <div class="chart-container" id="new-death"></div>
+                    <div class="chart-container" id="dount"></div>
                 </div>
             </section>
         </section>
     </main>
 
 </body>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script src="script.js"></script>
 
