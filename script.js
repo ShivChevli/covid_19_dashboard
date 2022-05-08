@@ -32,9 +32,11 @@ fetch('Data/full_grouped.csv').then(respons => respons.text())
     .then(data => {
         mainData = csvToArray(data);
         console.log(mainData);
-        let back = mainData[0]["Country/Region"];
-        country.push(mainData[0]["Country/Region"])
 
+        let back = mainData[0]["Country/Region"];
+
+        //Extrack Country Name from dataset
+        country.push(mainData[0]["Country/Region"])
         for (i = 1; i < mainData.length; i++) {
             if (back == mainData[i]["Country/Region"]) {
                 break;
@@ -42,9 +44,13 @@ fetch('Data/full_grouped.csv').then(respons => respons.text())
             country.push(mainData[i]["Country/Region"])
         }
 
+
+        //Get average activate data
         OverView = overViewData(mainData);
+
         console.log("OverView");
         console.log(OverView);
+
         geoData.push(['Country', 'Active Case On Average']);
         function FindataFromGeo() {
             for (const key in OverView) {
@@ -171,12 +177,12 @@ function extrextData(conName) {
             }
             total += parseInt(mainData[i]["Confirmed"]);
             date.push(mainData[i]["Date"]);
-            confirm.push(mainData[i]["Confirmed"]);
-            actvate_case.push(mainData[i]["Active"]);
-            deaths.push(mainData[i]["Deaths"]);
-            new_case.push(mainData[i]["New cases"]);
-            new_death.push(mainData[i]["New deaths"]);
-            new_recover.push(mainData[i]["New recovered"]);
+            confirm.push(checkNegative(mainData[i]["Confirmed"]));
+            actvate_case.push(checkNegative(mainData[i]["Active"]));
+            deaths.push(checkNegative(mainData[i]["Deaths"]));
+            new_case.push(checkNegative(mainData[i]["New cases"]));
+            new_death.push(checkNegative(mainData[i]["New deaths"]));
+            new_recover.push(checkNegative(mainData[i]["New recovered"]));
         }
     }
     let obj = {
@@ -192,6 +198,15 @@ function extrextData(conName) {
         "total": total,
     }
     return obj;
+}
+
+function checkNegative(num) {
+    if (parseInt(num) < 0) {
+        return 0;
+    }
+    else {
+        return num;
+    }
 }
 
 
@@ -258,7 +273,10 @@ function updateChart(conName) {
                 enabled: true,
                 position: 'topright',
                 offsetX: 0,
-                offsetY: 0,
+                offsetY: '13px',
+            },
+            x: {
+                show: false,
             },
         }
 
